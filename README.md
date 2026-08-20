@@ -1,4 +1,4 @@
-# claude-agent-guardrails
+# kaneky-agent-guardrails
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-skill-6C4FF7)](https://docs.claude.com/en/docs/claude-code)
@@ -16,8 +16,8 @@ waits for a human before it runs.
 ## Install
 
 ```sh
-git clone https://github.com/kan3ky/claude-agent-guardrails
-cp -r claude-agent-guardrails/skills/agent-guardrails ~/.claude/skills/
+git clone https://github.com/kan3ky/kaneky-agent-guardrails
+cp -r kaneky-agent-guardrails/skills/agent-guardrails ~/.claude/skills/
 ```
 
 No configuration. No dependencies. Ask Claude Code to design a tool
