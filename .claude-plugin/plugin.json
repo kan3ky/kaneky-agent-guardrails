@@ -1,0 +1,10 @@
+{
+  "$schema": "https://code.claude.com/schemas/plugin.json",
+  "name": "kaneky-agent-guardrails",
+  "version": "0.1.0",
+  "description": "Claude Code skill for designing agent tool surfaces that fail safe — a capability that does not exist cannot be talked into firing.",
+  "author": {
+    "name": "kan3ky",
+    "url": "https://github.com/kan3ky"
+  }
+}

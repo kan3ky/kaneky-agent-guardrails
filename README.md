@@ -24,6 +24,21 @@ No configuration. No dependencies. Ask Claude Code to design a tool
 registration, review a command-execution policy, add a new MCP tool, or
 reason about what an agent can reach, and the skill loads itself.
 
+## Use it
+
+Ask in plain language. The skill loads when the work matches it.
+
+```
+Review the tool surface my agent exposes.
+Is this command allowlist safe? What gets through that shouldn't?
+My agent needs shell access — how do I scope it without breaking it?
+Design the approval tiers for these tools.
+This MCP server exposes a mutating tool. What should gate it?
+```
+
+It answers with what an agent could be talked into doing, which control stops
+it, and where that control belongs — and says plainly when a design is sound.
+
 ## What it covers
 
 | Question | Where |
@@ -78,6 +93,19 @@ Failure reports are the most useful contribution — a permission check that
 looked right and wasn't, an escape hatch that leaked past its intended scope,
 a truncated response a caller trusted as complete. Include the symptom, the
 root cause, and the check that would have caught it.
+
+## Part of a collection
+
+One of twelve Claude Code skills about failures that look like success —
+GitOps, diagnosis, integrations, auth, end-to-end testing, visual verification,
+agent guardrails, agent memory, extraction, providers, delegation and corpus
+curation.
+
+```sh
+/plugin marketplace add kan3ky/kaneky-skills
+```
+
+Browse them at [kan3ky/kaneky-skills](https://github.com/kan3ky/kaneky-skills).
 
 ## Licence
 
