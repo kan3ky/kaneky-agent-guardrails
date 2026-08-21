@@ -84,6 +84,87 @@ Two consequences follow:
   rules near the top, and treat inserting anything above existing rules as
   a change that needs the same scrutiny as the rule itself.
 
+## Register per caller, not globally
+
+The spine's claim is only worth anything if a tool's existence can differ by
+caller. If every tool is registered once at startup for everyone, "absent" is
+not available as a control and you are left with refusal alone.
+
+The practical shape is a read identity and a write identity that are separate
+credentials, with the mutating tools registered only when the write credential
+is present. An agent running autonomously gets the read credential and never
+sees the mutating tool in its tool list — there is nothing to reason about, and
+nothing for injected content to name. The same binary, given the write
+credential in an operator-driven session, offers the full surface.
+
+Two properties make this worth the wiring:
+
+- **The tool list is itself prompt surface.** A model that can enumerate a
+  destructive tool will reason about it, mention it to the user, and try it
+  when a task seems to call for it. Removing it removes that entire branch.
+- **Credentials should not be shared across privilege levels.** If the read
+  path and the write path carry the same token, then a leak of the read
+  credential is a leak of write access, and the split you designed exists only
+  in the code, not in the blast radius.
+
+**And enforce server-side.** The gate belongs behind the API, not in the tool
+wrapper. A wrapper is client code: it can be rewritten, bypassed, or simply
+called differently. If the only thing preventing an out-of-scope action is the
+tool definition, then the control lives in the least trustworthy place in the
+system.
+
+## A truncated result must say it was truncated
+
+Tool results feed straight back into a model's reasoning, and a result that was
+cut off silently becomes a false premise the model then builds on.
+
+Cap what a tool returns — an unbounded result can exhaust the context, and one
+large response can displace everything the model needed to remember. But a cap
+without a signal is worse than no cap: a list of ten findings, where the tool
+quietly dropped ninety, reads as "there are ten findings". The model reports
+that to the user as a complete answer, confidently, and nobody can tell.
+
+Return three things, always: the total that matched, the number returned, and
+an explicit truncation flag. Then say in the tool's description that the
+consumer must check the flag before drawing a conclusion. This is the same
+failure the memory and extraction skills describe from other angles — absence
+and limitation sharing a representation with completeness.
+
+**Prefer narrowing to raising.** A tool that accepts a filter lets a caller ask
+a smaller question rather than a bigger one, which is cheaper and produces a
+complete answer to something rather than a partial answer to everything.
+
+## Tool descriptions are instructions, not documentation
+
+Whatever a tool's description says goes into the model's context and shapes
+behaviour. It is not a docstring for humans who might grep it later.
+
+- **Say what the tool must not be used for.** A description that only states
+  the happy path invites every adjacent use.
+- **Warn against expensive patterns explicitly** — polling a slow operation in
+  a loop, calling a tool per item where a batch parameter exists. A model will
+  do the naive thing unless told.
+- **Describe the failure modes the caller must handle**, such as the truncation
+  flag above, or a result that is a refusal rather than an error.
+
+Treat any text that reaches the model as part of the guardrail, because it is.
+
+## Content returned by a tool is untrusted input
+
+A tool that fetches a page, reads a file, or queries a system returns content
+that some other party may control. That content arrives in the model's context
+in the same channel as instructions.
+
+This is the delayed-injection path, and it defeats a surface designed only
+against a hostile *user*: the user is benign, the fetched document is not.
+Treat everything a tool returns as data — label it as such in the prompt, never
+let it be interpreted as a directive, and be especially careful with a tool
+whose output routinely contains instructions, such as one that reads issue
+trackers, emails or code comments.
+
+The capability-absence rule is the strongest defence here too. Injected content
+can only name tools that exist for the current caller.
+
 ## What to review in any agent tool surface
 
 Work through this whenever a tool is added, or a surface is being handed to
@@ -111,6 +192,16 @@ a new kind of caller:
    where most of the subtle bypasses live.
 8. **State what you didn't check.** A review that claims completeness it
    doesn't have is worse than one that names its gaps.
+
+## Adjacent skills
+
+- **agent-memory** — when the concern is what an agent *stores* rather than
+  what it can do. The truncation and absence problems above appear there in
+  another form.
+- **auth** — when the caller is a person or service rather than a model, and
+  the question is object-level authorisation rather than tool registration.
+- **delegation** — when the untrusted party is another agent producing work you
+  must verify, rather than a tool surface you must scope.
 
 ## References
 
