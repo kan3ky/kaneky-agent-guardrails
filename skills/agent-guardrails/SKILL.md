@@ -39,7 +39,8 @@ surface survivable:
   build in a sandboxed workspace.
 - **ask** — a human sees it before it runs. The default for anything that
   writes, spends money, leaves the machine, or composes several allowed
-  actions into one you never separately evaluated.
+  actions into one you never separately evaluated. A human being present is
+  necessary and not sufficient — see the integrity requirements below.
 - **deny** — refused outright, and no approval in the moment can override
   it. Reserved for things outside the tool's contract entirely — a path
   outside the sandbox, a binary that was never meant to be reachable here.
@@ -53,12 +54,46 @@ in a good policy is putting the ambiguous middle into ask by default — an
 unrecognized shape of a known-dangerous action should route to a human, not
 silently fall through to allow because nothing explicitly caught it.
 
-## Ordered, first-match rules — order is a security property
+## What an `ask` has to guarantee to be worth anything
 
-A tool surface is usually governed by more than one rule, and the natural
-way to write that is a list evaluated top to bottom, first match wins. That
-ordering is not incidental plumbing. It is where the actual security
-decision lives.
+An approval is a claim that a human authorised *this specific operation*. Three
+properties have to hold, or the record says approved while something else ran:
+
+- **The prompt shows what will actually happen** — the resolved command, the
+  real target, the amount, the effect. An approval granted against a summary,
+  a truncated argument list, or a path that is later resolved differently is
+  consent to something the human never saw.
+- **The approval binds to that exact request, immutably.** If parameters can
+  change between the prompt and the execution, the gate is decorative: the
+  approval was obtained for a preview and spent on a different call. Bind the
+  decision to a hash or an identifier of the frozen request, not to "the
+  pending action".
+- **It is one-shot and it expires.** A reusable approval is a credential.
+  Replaying an earlier yes, or holding one open across a change in state, is
+  the same check/use race that has always haunted this pattern.
+
+None of the three is exotic, and all three are commonly missing — which is how
+a system produces a clean audit trail of approvals for actions nobody approved.
+
+## Ordered rules — where order is a security property
+
+A tool surface is usually governed by more than one rule, and one common way
+to combine them is a list evaluated top to bottom, first match wins. Where
+that is the engine's algorithm, ordering is not incidental plumbing — it is
+where the security decision lives.
+
+**Establish which algorithm you are actually running before applying any of
+this.** First-match is one option among several: deny-overrides,
+allow-overrides, most-specific-match and additive evaluation are all in use,
+and they disagree about the same rule set. Some hosts — including Claude Code
+— evaluate by CATEGORY rather than position: every deny is considered, then
+every ask, then allow, so a deny anywhere beats an allow anywhere and moving a
+line up the file changes nothing. Under that model the advice below is
+harmless but pointless; under first-match it is the whole ballgame. Reading
+the wrong one onto your engine produces confident reasoning about a mechanism
+that is not there.
+
+Under a first-match engine:
 
 Put the narrow, dangerous shape of an action above the broad, permissive
 one, and the dangerous shape wins when both would otherwise match:
@@ -217,26 +252,35 @@ a new kind of caller:
    would technically permit a call if it were offered.
 2. **For every tool, name the worst single call it allows** — not the
    intended use, the worst-case argument a caller could legally pass.
-3. **Confirm decisions are allow/ask/deny, not a boolean**, and that
+3. **Then name the worst CHAIN, because per-tool review cannot see it.** Most
+   real damage is a composition of individually reasonable capabilities: a
+   permitted read of something sensitive followed by a permitted outbound
+   send is exfiltration, assembled from two tools that each pass review. An
+   untrusted fetch followed by a permitted interpreter is execution. Walk the
+   data flow — what can be read, where can it go, what can act on it — and
+   treat any read-then-send or fetch-then-execute pair as a finding in its own
+   right. A checklist that only asks about single calls can be completed in
+   full while an exfiltration path sits open.
+4. **Confirm decisions are allow/ask/deny, not a boolean**, and that
    unrecognized shapes of dangerous actions land in ask, not allow.
-4. **Trace a handful of concrete calls through the ordered rules by hand.**
+5. **Trace a handful of concrete calls through the ordered rules by hand.**
    If you can't predict the verdict without running the code, neither can
    whoever adds the next rule.
-5. **Confirm enforcement is server-side** — see
+6. **Confirm enforcement is server-side** — see
    `references/tool-surface-design.md` for why a client-side or
    wrapper-side check is not a boundary.
-6. **Confirm any escape hatch (an admin override, a "skip approval" mode)
+7. **Confirm any escape hatch (an admin override, a "skip approval" mode)
    cannot exist in the deployment shape a remote caller reaches** — see
    `references/escape-hatches.md`.
-7. **If the surface includes running commands**, check it against
+8. **If the surface includes running commands**, check it against
    `references/command-policy.md` specifically — command execution is
    where most of the subtle bypasses live.
-8. **If any part of this surface came from a downloaded skill, subagent or
+9. **If any part of this surface came from a downloaded skill, subagent or
    plugin definition, review its metadata before its prose** — see
    `references/untrusted-skills.md`. The artifact declares its own
    permissions, and that declaration is consulted before the model reasons
    about anything.
-9. **State what you didn't check.** A review that claims completeness it
+10. **State what you didn't check.** A review that claims completeness it
    doesn't have is worse than one that names its gaps.
 
 ## Adjacent skills

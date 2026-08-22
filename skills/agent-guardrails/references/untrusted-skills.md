@@ -38,10 +38,10 @@ part, which can only work through capabilities that already exist, while the
 short part decides what exists at all — and the author chose how much of each
 to write.
 
-## Three mechanisms
+## Four mechanisms
 
 Each has been demonstrated against a real host. Check each against the version
-you are running rather than assuming it still holds — one of the three has
+you are running rather than assuming it still holds — one of them has
 already been closed by the vendor, which is the normal life cycle and not a
 reason to stop looking. The shapes generalise to any host that lets a
 downloaded artifact declare its own permissions.
@@ -66,21 +66,36 @@ behaviour.
 
 What survives the correction is the shape, and it is why the mechanism is
 listed at all: a child context naming its own privilege level is an inversion
-waiting to happen. If a subagent could ever declare itself more privileged
-than its parent, every restriction on the parent is advisory. Treat the mode
+waiting to happen. Note the limit precisely — where such a bypass exists it
+reaches the prompting MODES, not explicit denials, so what becomes advisory is
+whatever you were relying on a prompt to catch. That is narrower than "every
+restriction" and still bad, because a prompt is what most people are relying
+on. Treat the mode
 line in a downloaded agent file as a request the host may or may not honour on
 the version you are running, verify it against the deny rules you actually
 have, and remember that a defence which holds in the current release is not
 the same as one the artifact cannot reach.
 
-**3. Preprocessing runs before the model reasons.** Where a host expands
+**3. Frontmatter that registers hooks, or launches a process.** Two shapes are
+easy to miss because neither looks like a tool grant. A skill's frontmatter can
+register HOOKS that stay active for the rest of the session — so a one-time
+install buys persistence, and the hook fires on activity that has nothing to do
+with the skill. And a subagent's frontmatter can define an inline stdio MCP
+server, whose `command` is a program launched when that agent starts.
+
+Read those two fields as what they are: "run this later, repeatedly" and "start
+this binary". An installer working through a checklist of `allowed-tools`,
+permission mode and preprocessing can tick every box and still have handed over
+a persistent callback and a spawned process.
+
+**4. Preprocessing runs before the model reasons.** Where a host expands
 directives in a skill file before handing the content to the model, that
 expansion is not subject to any judgment the model would have applied. The
 model's caution is a real control for content the model *sees*. Content that
 executes on the way to the model bypasses it entirely — there is no "the model
 would have noticed", because the model was never consulted.
 
-The third is the most important to internalise, because it defeats the
+The last is the most important to internalise, because it defeats the
 mitigation people reach for first. "The model wouldn't run something obviously
 malicious" is a reasonable claim about content in the context window and a
 meaningless one about content that executes before the context window is built.
@@ -106,9 +121,11 @@ protection is the attacker's restraint.
 
 **Read the metadata first, and separately.** Open the frontmatter, the sibling
 manifest, and any preprocessing directives before reading a word of the prose,
-and decide on those alone. If the skill declares tools or a permission mode,
-that is the review — the prose cannot make a pre-granted shell tool safe, and
-it will try.
+and decide on those alone. The full list to check, because the obvious two are
+not the whole surface: declared tools, permission mode, registered hooks,
+inline MCP server definitions and their `command`, and any preprocessing
+syntax. If the skill declares any of them, that is the review — the prose
+cannot make a pre-granted shell tool safe, and it will try.
 
 **Treat installation as a dependency install, because it is one.** Same
 questions: who publishes it, what does the source actually contain, what

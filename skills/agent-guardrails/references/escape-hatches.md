@@ -30,10 +30,25 @@ stop asking before every action, for a fully autonomous run. It is
 genuinely reasonable in one specific context and genuinely catastrophic in
 another, and the difference is not the flag, it's who else is exposed.
 
-**On a machine one person owns, running locally**, a skip-approvals mode
-removes friction for someone who already has full access to everything the
-agent could touch — they could run the same commands themselves, by hand,
-with no approval queue involved. The guardrail was protecting them from
+**On a machine one person owns, running locally**, a skip-approvals mode is
+tempting on the grounds that the operator could run the same commands by hand
+anyway.
+
+That reasoning does not survive contact with prompt injection, and the
+distinction it draws is the wrong one. What bounds the damage is ISOLATION and
+blast radius, not how many people hold the login. A local agent reads fetched
+pages, dependencies and issue trackers, and content in any of them can steer it
+into deleting work the operator values, spending the ambient credentials
+already sitting in the environment, or sending data outward — none of which the
+owner would have done by hand, and all of which their access makes possible.
+"They could have done it themselves" describes capability; the approval gate
+was about intent.
+
+So bind the hatch to an environment where the blast radius is genuinely
+bounded — a container or a VM holding nothing you cannot lose and no credential
+that outlives it. Vendor guidance for these modes says the same thing, and says
+plainly that they offer no protection against prompt injection. Single
+ownership of the host is not that environment. The guardrail was protecting them from
 their own mistakes and interruption fatigue, not from another party.
 
 **On a deployment other people can reach** — hosted, multi-tenant, remote —

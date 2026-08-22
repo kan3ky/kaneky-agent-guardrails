@@ -48,6 +48,34 @@ forcing every call into structured argv. If you take that string, you now
 own writing a tokenizer, and a tokenizer is where correctness gets
 expensive fast.
 
+And a tokenizer for *which shell*. This is the part that quietly sinks the
+approach: there is no generic "command line" to parse. `bash`, `dash`, `zsh`,
+`cmd.exe` and PowerShell disagree about quoting, escaping, variable syntax and
+what counts as a separator, so a policy that tokenizes a line without knowing
+which interpreter receives it is guessing. PowerShell alone breaks most
+Unix-shaped assumptions — different quoting, a different escape character, its
+own operators.
+
+Even within one dialect the executable grammar is far larger than the pieces
+usually checked. Newlines as separators, parameter and brace expansion, command
+and process substitution, here-documents, aliases and shell functions,
+arithmetic evaluation: each is a path to execution that a policy matching on
+words will not see.
+
+That leaves two honest positions and no third:
+
+1. **Do not involve a shell.** Take structured argv and execute it directly.
+   The grammar problem disappears because nothing parses anything.
+2. **If a shell is unavoidable, parse with the real grammar of the exact shell
+   that will run the line, and reject every node you do not positively
+   recognise.** Allowlist the tree; never scan the string.
+
+A partial tokenizer over a generic command line is the option that looks like
+security and is not, because the constructs it fails to model are exactly the
+ones an attacker reaches for. The checks below assume a Unix-like shell you
+have pinned deliberately — they are necessary, not sufficient, and they are
+not portable to another dialect.
+
 **Quote awareness.** A space inside quotes is not a separator; an empty
 quoted string (`""`) is still a token, not nothing. Losing either of these
 silently changes what the command means without erroring.
