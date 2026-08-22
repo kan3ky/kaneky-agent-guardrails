@@ -6,7 +6,8 @@
 [![Config](https://img.shields.io/badge/config-zero-brightgreen)](#install)
 
 A Claude Code skill for designing and reviewing agent tool surfaces — the set
-of capabilities an agent can call, and the gates around each one.
+of capabilities an agent can call, the gates around each one, and what to
+check before installing a tool surface somebody else designed.
 
 Most agent security advice is about prompts: what to tell the model not to
 do. This is about what to build so the instruction is unnecessary — a tool
@@ -34,6 +35,8 @@ Is this command allowlist safe? What gets through that shouldn't?
 My agent needs shell access — how do I scope it without breaking it?
 Design the approval tiers for these tools.
 This MCP server exposes a mutating tool. What should gate it?
+Is this skill I just downloaded safe to install? What should I look at first?
+An agent runs as me. Does anything in the audit trail tell us apart?
 ```
 
 It answers with what an agent could be talked into doing, which control stops
@@ -85,6 +88,13 @@ all.
 
 Everything in this skill is a way of asking "should this exist for this
 caller, and who decides when it fires" — before it asks "is this safe."
+
+The same question applies to a surface you did not design. A downloaded skill,
+subagent or plugin is executable configuration: it declares which tools it may
+use, and that declaration is read before the model reasons about anything. So
+the review that matters is of its metadata, not its prose — and the strongest
+control is still one the artifact cannot reach, which means a denial in your
+own settings rather than restraint in someone else's file.
 
 ## Scope
 

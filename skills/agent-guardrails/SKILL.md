@@ -1,6 +1,6 @@
 ---
 name: agent-guardrails
-description: Design and review agent tool surfaces that fail safe — what capabilities a caller can even see, the allow/ask/deny gate around each one, command-execution policy, and the escape hatches every guardrail eventually grows. Use when registering a new tool for an agent (CLI, MCP server, function-calling API), when writing or reviewing a command allowlist/policy, when deciding what needs human approval, or when an agent's tool surface is being extended and someone should check what that surface can now reach.
+description: Design and review agent tool surfaces that fail safe — what capabilities a caller can even see, the allow/ask/deny gate around each one, command-execution policy, giving an agent an identity so its actions stay attributable, and the escape hatches every guardrail eventually grows. Also covers the surface you did NOT design: vetting a downloaded skill, subagent or plugin before installing it, since those declare their own tool permissions and are read before the model reasons. Use when registering a tool for an agent (CLI, MCP server, function-calling API), writing or reviewing a command allowlist, deciding what needs human approval, installing or updating a third-party skill or agent definition, or extending an agent's tool surface.
 ---
 
 # Agent tool-surface guardrails
