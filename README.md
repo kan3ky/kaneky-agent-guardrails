@@ -46,6 +46,8 @@ it, and where that control belongs — and says plainly when a design is sound.
 | Should this be a refusal or an absent tool? | `SKILL.md` |
 | Why "allow / ask / deny" beats a boolean | `SKILL.md` |
 | Why rule order is itself a security property | `SKILL.md` |
+| Why an agent acting as its operator destroys attribution, and what a delegated identity fixes | `SKILL.md` |
+| Why a permission field nothing reads is worse than no field at all | `SKILL.md` |
 | argv vs. a command line — why re-parsing args as shell syntax is a vulnerability class | `references/command-policy.md` |
 | Quoting, `&&` vs. `&`, and why to refuse redirection and substitution instead of parsing them | `references/command-policy.md` |
 | How one flag turns a safe binary into a write or exec primitive | `references/command-policy.md` |
@@ -63,6 +65,11 @@ it, and where that control belongs — and says plainly when a design is sound.
 | Binding "skip approvals" to a mode a served deployment cannot enter | `references/escape-hatches.md` |
 | Approval fatigue as a failure mode, and tuning the ask tier | `references/escape-hatches.md` |
 | Step/time budgets as containment, and why they aren't a security control alone | `references/escape-hatches.md` |
+| A downloaded skill declaring its own tool permissions, and skipping the consent prompt | `references/untrusted-skills.md` |
+| A subagent declaring itself more privileged than the session that spawned it | `references/untrusted-skills.md` |
+| Preprocessing that runs before the model reasons, so the model's caution never applies | `references/untrusted-skills.md` |
+| Why update, not install, is the moment a vetted skill stops being vetted | `references/untrusted-skills.md` |
+| What you owe people if you publish skills yourself | `references/untrusted-skills.md` |
 
 ## The idea behind it
 

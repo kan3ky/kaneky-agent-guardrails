@@ -113,6 +113,47 @@ called differently. If the only thing preventing an out-of-scope action is the
 tool definition, then the control lives in the least trustworthy place in the
 system.
 
+## An agent with no identity of its own leaves no attributable record
+
+Registering per caller solves what an agent *can* do. It does not answer who
+did it, and those are separate failures with separate consequences.
+
+The shortcut is to let an agent act as its operator — same credential, same
+subject, same rows in the log. It works immediately, and it destroys
+attribution permanently: every action the agent takes is indistinguishable from
+an action the human took, in the audit trail, in the access logs, in whatever
+record someone eventually has to reconstruct an incident from. "Did she run
+this, or did the thing she delegated to run it?" has no answer, and it is the
+first question anyone asks.
+
+Give the agent its own identity, issued by the principal, carrying a **subset**
+of what the principal holds. Two properties follow, and both matter:
+
+- **The subset relationship is what makes it a delegation.** An agent granted
+  everything its principal holds is not acting on their behalf — it *is* them,
+  and there is nothing left to distinguish. It must not be possible to grant an
+  agent more than its issuer has.
+- **A distinct identity can be revoked alone.** Revoking a compromised agent
+  should not require locking out the person it worked for, and today that is
+  frequently the only available response, which means the response gets
+  delayed.
+
+The same reasoning applies one level down, to how the grants themselves are
+expressed. A single admin-or-not role cannot say "may read the issue tracker
+but not open a merge request", so it gets granted to anyone who needs any part
+of the surface, and it stops meaning anything. Named capabilities, granted as
+data rather than compiled in, let one subsystem go to one caller — and let a
+grant be withdrawn as an operation rather than a deployment.
+
+One trap worth naming, because it is the usual way this goes wrong: a
+permission field that nothing reads is worse than no field at all. It answers
+"is this covered?" with a yes, it passes review, and its own tests pass — they
+verify the field is set, not that anything consults it. Confirm the enforcement
+path reads it, on the code path callers actually take. An unenforced gate and a
+fully-authorised caller produce identical output and identical logs; there is
+no observation that separates them, which is why this kind of gap survives for
+years.
+
 ## A truncated result must say it was truncated
 
 Tool results feed straight back into a model's reasoning, and a result that was
@@ -190,7 +231,12 @@ a new kind of caller:
 7. **If the surface includes running commands**, check it against
    `references/command-policy.md` specifically — command execution is
    where most of the subtle bypasses live.
-8. **State what you didn't check.** A review that claims completeness it
+8. **If any part of this surface came from a downloaded skill, subagent or
+   plugin definition, review its metadata before its prose** — see
+   `references/untrusted-skills.md`. The artifact declares its own
+   permissions, and that declaration is consulted before the model reasons
+   about anything.
+9. **State what you didn't check.** A review that claims completeness it
    doesn't have is worse than one that names its gaps.
 
 ## Adjacent skills
@@ -216,3 +262,8 @@ a new kind of caller:
 - `references/escape-hatches.md` — every guardrail grows a bypass; design
   it on purpose. Binding it to a deployment shape, making it observable,
   approval fatigue, and step/time budgets as containment.
+- `references/untrusted-skills.md` — the surface you did not design: skills,
+  subagents and plugins as executable configuration. Pre-granted tools that
+  skip consent, a subagent declaring itself more privileged than its parent,
+  preprocessing that runs before the model reasons, why update is the
+  dangerous moment, and what you owe people if you publish skills yourself.
