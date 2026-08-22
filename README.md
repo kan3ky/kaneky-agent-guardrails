@@ -103,10 +103,8 @@ root cause, and the check that would have caught it.
 
 ## Part of a collection
 
-One of twelve Claude Code skills about failures that look like success —
-GitOps, diagnosis, integrations, auth, end-to-end testing, visual verification,
-agent guardrails, agent memory, extraction, providers, delegation and corpus
-curation.
+Part of a collection of Claude Code skills about failures that look like
+success — the ones that pass review, deploy green, and are wrong anyway.
 
 ```sh
 /plugin marketplace add kan3ky/kaneky-skills
