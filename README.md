@@ -116,13 +116,17 @@ root cause, and the check that would have caught it.
 One of a set of Claude Code skills about failures that look like success — the
 ones that pass review, deploy green, and are wrong anyway.
 
+```sh
+/plugin marketplace add kan3ky/kaneky-skills
+```
+
 Published so far:
 
 - **[kaneky-delegation](https://github.com/kan3ky/kaneky-delegation)** — what to check when you hand work to another agent, and why its report is not the check
 
-More are written and not yet published; a marketplace entry will land once the
-collection repository exists. Until then these install individually, and this
-list names only what you can actually reach today.
+The [collection](https://github.com/kan3ky/kaneky-skills) lists the rest, which
+are written and not yet published. They are named there without links, because
+a link to a repository that does not exist is the defect these skills are about.
 
 ## Licence
 
